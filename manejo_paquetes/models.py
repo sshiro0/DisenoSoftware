@@ -45,22 +45,32 @@ class Conductor(models.Model):
     ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
-class Paquete(models.Model):
+class Camion(models.Model):
+    ID_camion = models.BigAutoField(primary_key=True)
 
+class Envio(models.Model):
+    ID_envio = models.BigAutoField(primary_key=True)
+
+
+class Paquete(models.Model):
     ID_paquete = models.BigAutoField(primary_key=True)
     Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    Destino = models.CharField(max_length=150)
-    Origen = models.CharField(max_length=150)
+    Destino = models.CharField(max_length=150, default=None)
+    Origen = models.CharField(max_length=150, default=None)
     Peso = models.SmallIntegerField()
-    Dimensiones = models.CharField(max_length=2, choices=Dimensiones_Paquetes)
-    Instrucciones_Entrega = models.CharField(max_length=200)
-    Contenido = models.CharField(max_length=80)
-    Estado = models.CharField(max_length=1, choices=Estados_paquetes)
+    Dimensiones = models.CharField(max_length=2, choices=Dimensiones_Paquetes, default=None)
+    Instrucciones_Entrega = models.CharField(max_length=200, default="")
+    Contenido = models.CharField(max_length=80, default="")
+    Estado = models.CharField(max_length=1, choices=Estados_paquetes, default=None)
+    Envio = models.ForeignKey(Envio, on_delete=models.CASCADE, default=None)
 
 
-class Conductor(models.Model):
-    ID_conductor = models.BigAutoField(primary_key=True)
-    
+class Ruta(models.Model):
+    ID_ruta = models.BigAutoField(primary_key=True)
 
 
 
+class Entrega(models.Model):
+    Conductor = models.ForeignKey(Conductor, on_delete=models.SET_NULL, null=True, blank=True)
+    Camion = models.ForeignKey(Camion, on_delete=models.SET_NULL, null=True, blank=True)
+    Ruta = models.ForeignKey(Ruta, on_delete=models.SET_NULL, null=True, blank=True)
