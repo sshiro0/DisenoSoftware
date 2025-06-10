@@ -1,15 +1,15 @@
 import openrouteservice as ors
 import folium
 
-def map_route(dest_coords, sede_coords):
+def map_route(dest_coords:list, sede_coords:list):
 
     #Inicializacion del cliente de ORS
     client = ors.Client(key='5b3ce3597851110001cf6248782465e9b6b14ca9a036b6e4d110a193')
 
 
 
-    #Inicializacion del mapa (Idealmente se crea el mapa en la coordenada de la sede)
-    map = folium.Map(location = list(reversed([-73.04391854071059, -36.81804578907932])), tiles="cartodbpositron", zoom_start=13)
+    #Inicializacion del mapa (Idealmente se crea el mapa en la coordenada de la primera sede de la lista)
+    map = folium.Map(location = list(reversed(sede_coords[0])), tiles="cartodbpositron", zoom_start=13)
 
 
 
@@ -18,26 +18,12 @@ def map_route(dest_coords, sede_coords):
         folium.Marker(location=list(reversed(coord)), icon=folium.Icon(color="red")).add_to(map)
 
 
-    #Se crean los vehiculos, por simplicidad hay un vehiculo por sede, cada uno con una capacidad de 3
+    #Se crean los vehiculos, por simplicidad hay un vehiculo por sede, cada uno con una capacidad de 5
 
-    #Alternativa para crear tantos vehiculos como sedes hayan
-    #vehicles = [ors.optimization.Vehicle(id=index, profile='driving-car', start=cord, end=cord, capacity=[5]) for index, cord in enumerate(sede_coords)]
+    #Creamos tantos vehiculos como sedes hayan sido ingresadas
+    vehicles = [ors.optimization.Vehicle(id=index, profile='driving-car', start=cord, end=cord, capacity=[5]) for index, cord in enumerate(sede_coords)]
 
-    #También se pueden crear vehiculos uno por uno
-    vehicles = [
-        ors.optimization.Vehicle(id=0,
-                                profile='driving-car', 
-                                start = sede_coords[0],
-                                end = sede_coords[0], 
-                                capacity = [5]), #Capacidad del vehiculo (se entiende como la cantidad de paquetes que puede llevar)
-                                                 #Pero en este caso se entenderá como la cantidad de entregas que puede realizar
-
-        ors.optimization.Vehicle(id=1, 
-                                profile='driving-car', 
-                                start = sede_coords[1], 
-                                end = sede_coords[1], 
-                                capacity = [5]),
-    ]
+    #La capacidad del vehiculo (se entiende como la cantidad de paquetes que puede llevar) pero en este caso se entenderá como la cantidad de entregas que puede realizar
 
     #Se crean los trabajos, que corresponden a las entregas que se van a realizar
         #En este caso "amount" corresponde a la cantidad de paquetes que se van a entregar, pero de deja por defecto en 1 para
