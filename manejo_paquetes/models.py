@@ -1,8 +1,8 @@
 from django.db import models
 from manejo_paquetes.utility.Correos import enviar_correo
 from django.utils.timezone import now
+from django.contrib.auth.hashers import make_password, check_password
 from location_field.models.plain import PlainLocationField
-# Create your models here.
 
 
 Dimensiones_Paquetes = [
@@ -47,6 +47,12 @@ class Usuario(models.Model):
     Tipo_Usuario = models.CharField(max_length=2 , choices=Tipos_de_usuarios)
     Fecha_Registro = models.DateField(default=None, blank=True, null=True)
     Estado = models.CharField()
+
+    def set_password(self, raw_password):
+        self.Contrasena = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.Contrasena)
 
     def save(self, *args, **kwargs):
         if self.Fecha_Registro is None:

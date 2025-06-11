@@ -44,12 +44,19 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'manejo_paquetes.middleware.CustomAuthMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'manejo_paquetes.Usuario'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'  # Página a la que redirigir después del login
+LOGOUT_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'Sistema_de_envios.urls'
 
