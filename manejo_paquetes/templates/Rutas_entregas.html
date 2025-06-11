@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
 <head>
     <title>Mapas de Entregas</title>
@@ -7,7 +8,7 @@
     <h1>Mapas Generados</h1>
     <ul>
         {% for mapa in mapas %}
-            <li><a href="{{ mapa }}" target="_blank">{{ mapa }}</a></li>
+            <li><a href="{% static 'mapas/' %}{{ mapa }}" target="_blank">{{ mapa }}</a></li>
         {% endfor %}
     </ul>
 </body>
