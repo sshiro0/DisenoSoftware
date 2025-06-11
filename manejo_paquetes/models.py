@@ -1,5 +1,5 @@
 from django.db import models
-
+from utility.Correos import enviar_correo
 # Create your models here.
 
 
@@ -74,7 +74,25 @@ class Paquete(models.Model):
     def save(self, *args, **kwargs):
         if self.Remitente and not self.Destino:
             self.Destino = self.Remitente.ID_cliente.Direccion
+
+        if self.pk:
+            old = Paquete.objects.get(pk=self.pk)
+            if old.Estado != self.Estado:
+                Correo = self.Remitente.ID_cliente.Correo
+                if self.Estado == "E":
+                    mensaje_correo = "Su paquete a sido entregado"
+                elif self.Estado == "R":
+                    mensaje_correo = "Su paquete está siendo repartido"
+                else:
+                    mensaje_correo = "Su paquete está en bodega y pronto será repartido"
+                
+                enviar_correo(correo_destinatario=Correo, 
+                              asunto="Se actualizo el estado de su paquete",
+                              mensaje=mensaje_correo)
+                
         super().save(*args, **kwargs)
+
+    
 
 
 class Ruta(models.Model):
@@ -86,3 +104,14 @@ class Entrega(models.Model):
     Conductor = models.ForeignKey(Conductor, on_delete=models.SET_NULL, null=True, blank=True)
     Camion = models.ForeignKey(Camion, on_delete=models.SET_NULL, null=True, blank=True)
     Ruta = models.ForeignKey(Ruta, on_delete=models.SET_NULL, null=True, blank=True)
+    Lista_Paquetes = models.ManyToManyField(Paquete)
+
+
+class Notificacion(models.Model):
+    Cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    Paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
+
+
+
+
+
