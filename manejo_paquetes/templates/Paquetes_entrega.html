@@ -1,0 +1,19 @@
+<h1>Paquetes a cargo de repatir por {{Entrega.Conductor.ID_conductor.Nombre}}</h1>
+
+<h2>Paquetes de la entrega</h2>
+
+{% for paquete in paquetes %}
+<div>
+    <h2>ID: {{paquete.ID_paquete}} </h2>
+    <p>Cliente: {{paquete.Remitente.ID_cliente.Nombre}} </p>
+    <p>Cliente ID : {{paquete.Remitente.ID_cliente.ID_usuario}}</p>
+    <p>Direccion Bodega: {{paquete.Origen}}</p>
+    <p>Destino: {{paquete.Destino}}</p>
+    <p>Estado: {{paquete.get_Estado_display}}</p>
+    <button>Cancelar Paquete</button>   
+
+</div>
+{% endfor %}
+
+
+

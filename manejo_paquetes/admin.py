@@ -9,6 +9,9 @@ admin.site.register(Conductor)
 admin.site.register(Administrador)
 admin.site.register(Camion)
 admin.site.register(Envio)
-admin.site.register(Paquete)
 admin.site.register(Ruta)
 admin.site.register(Entrega)
+
+@admin.register(Paquete)
+class PaqueteAdmin(admin.ModelAdmin):
+    list_display = ('ID_paquete', 'Remitente', 'Destino', 'Estado')

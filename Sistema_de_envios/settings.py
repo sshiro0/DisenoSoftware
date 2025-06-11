@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'location_field.apps.DefaultConfig',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -78,6 +79,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+}
+
+# Configuración de django-location-field
+LOCATION_FIELD = {
+    'map.provider': 'openstreetmap',
+    'map.zoom': 13,
+    'map.center': [-36.8270, -73.0503],
 }
 
 

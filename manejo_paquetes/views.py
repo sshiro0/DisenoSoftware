@@ -13,3 +13,15 @@ def Ver_Paquetes_Cliente(request, id):
         'paquetes' : Paquetes,
         'ID' : id
     })
+
+def Ver_Paquetes_Entrega(request, id):
+    entrega = Entrega.objects.get(id=id)
+    if entrega.exists():
+        paquetes = entrega.Lista_Paquetes.all()
+    else:
+        entrega = None
+        paquetes = None
+    return render(request, 'Paquetes_entrega.html', {
+        'Entrega' : entrega,
+        'Paquetes' : paquetes
+    })

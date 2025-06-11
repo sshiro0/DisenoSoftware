@@ -1,5 +1,7 @@
 from django.db import models
-from utility.Correos import enviar_correo
+from manejo_paquetes.utility.Correos import enviar_correo
+from django.utils.timezone import now
+from location_field.models.plain import PlainLocationField
 # Create your models here.
 
 
@@ -36,8 +38,13 @@ class Usuario(models.Model):
     Contrasena = models.CharField(max_length=20)
     Direccion = models.CharField(max_length=150)
     Tipo_Usuario = models.CharField(max_length=2 , choices=Tipos_de_usuarios)
-    Fecha_Registro = models.DateField()
+    Fecha_Registro = models.DateField(default=None, blank=True, null=True)
     Estado = models.CharField()
+
+    def save(self, *args, **kwargs):
+        if self.Fecha_Registro is None:
+            self.Fecha_Registro = now().date()
+        super().save(*args, **kwargs)
 
 
 class Cliente(models.Model):
@@ -48,12 +55,14 @@ class Administrador(models.Model):
     ID_admin = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
-class Conductor(models.Model):
-    ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
-
-
 class Camion(models.Model):
     ID_camion = models.BigAutoField(primary_key=True)
+    Patente = models.CharField(max_length=6, null=True, default=None, blank=True)
+
+class Conductor(models.Model):
+    ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+    Camion = models.ForeignKey(Camion, null=True, on_delete=models.SET_NULL)
+
 
 class Envio(models.Model):
     ID_envio = models.BigAutoField(primary_key=True)
@@ -62,19 +71,20 @@ class Envio(models.Model):
 class Paquete(models.Model):
     ID_paquete = models.BigAutoField(primary_key=True)
     Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
+    Destino = PlainLocationField(blank=True, null=True)
     Origen = models.CharField(max_length=150, choices= Bodegas_Paquetes, default=None)
     Peso = models.PositiveIntegerField()
     Dimensiones = models.CharField(max_length=2, choices=Dimensiones_Paquetes, default=None)
     Instrucciones_Entrega = models.CharField(max_length=200, default="")
     Contenido = models.CharField(max_length=80, default="")
     Estado = models.CharField(max_length=1, choices=Estados_paquetes, default=None)
-    Envio = models.ForeignKey(Envio, on_delete=models.CASCADE, default=None, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.Remitente and not self.Destino:
             self.Destino = self.Remitente.ID_cliente.Direccion
 
+        #sistema observer, que al momento de cambiar el estado 
+        # de un paquete, se le avisa al cliente 
         if self.pk:
             old = Paquete.objects.get(pk=self.pk)
             if old.Estado != self.Estado:
@@ -99,17 +109,26 @@ class Ruta(models.Model):
     ID_ruta = models.BigAutoField(primary_key=True)
 
 
-
 class Entrega(models.Model):
-    Conductor = models.ForeignKey(Conductor, on_delete=models.SET_NULL, null=True, blank=True)
-    Camion = models.ForeignKey(Camion, on_delete=models.SET_NULL, null=True, blank=True)
-    Ruta = models.ForeignKey(Ruta, on_delete=models.SET_NULL, null=True, blank=True)
-    Lista_Paquetes = models.ManyToManyField(Paquete)
+    ID_entrega = models.BigAutoField(primary_key=True)
+    Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
+    #Destino es la direccion en palabras, que debemos pasar a cords
 
+    # Relación muchos a muchos con Paquete usando un modelo intermedio
+    paquetes = models.ManyToManyField(Paquete, through='Lista_Paquetes')
 
-class Notificacion(models.Model):
-    Cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    Paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
+    def save(self, *args, **kwargs):
+        if not self.destino and self.pk is None:
+            # Solo si aún no tiene destino definido
+            primer_paquete = self.paquetes.first()
+            if primer_paquete:
+                self.destino = primer_paquete.destino
+        super().save(*args, **kwargs)
+
+class Lista_Paquetes(models.Model):
+    entrega = models.ForeignKey(Entrega, on_delete=models.CASCADE)
+    paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
+
 
 
 
