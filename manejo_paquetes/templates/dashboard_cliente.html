@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Cliente</title>
+</head>
+<body>
+    <h1>Dashboard Cliente</h1>
+    <p>Bienvenido {{ user.get_full_name }} (Cliente)</p>
+    <a href="{% url 'logout' %}">Cerrar sesión</a>
+</body>
+</html>

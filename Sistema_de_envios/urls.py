@@ -20,7 +20,5 @@ from manejo_paquetes.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login_view, name='login'),
-    path('logout/', logout_view, name='logout'),
     path('', include('manejo_paquetes.urls'))
 ]

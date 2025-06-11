@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from manejo_paquetes.utility.correos import enviar_correo
+from manejo_paquetes.utility.Correos import enviar_correo
 from django.utils.timezone import now
 from location_field.models.plain import PlainLocationField
 from django.utils import timezone
@@ -21,15 +21,16 @@ Tipos_de_usuarios = [
 
 Estados_paquetes = [
     ("B", "En bodega"),
-    ("R", "En reparto"),
+    ("R", "Repartiendo"),
     ("E", "Entregado"),
 ]
 
 Bodegas_Paquetes = [
-    ("B1", "Edmundo Larenas 160 Concepcion"),
-    ("B2", "Maipú 2120 Concepcion"),
-    ("B3", "Camilo Henríquez 2345 Concepcion"),
-    ("B4", "Arturo Prat 900 Concepcion"),
+    ("B1", "Edmundo Larenas 160 Concepcion")
+]
+
+Bodegas_cords = [
+    (-73.038343, -36.82970312988858)
 ]
 
 class Usuario(AbstractUser):
@@ -41,7 +42,6 @@ class Usuario(AbstractUser):
     
     ESTADOS = [
         ('A', 'Activo'),
-        ('I', 'Inactivo'),
         ('B', 'Bloqueado'),
     ]
 
@@ -49,19 +49,13 @@ class Usuario(AbstractUser):
     tipo_usuario = models.CharField(max_length=2, choices=TIPOS_USUARIO)
     fecha_registro = models.DateField(default=now)
     estado = models.CharField(max_length=20, default='A')
-    
-    def __str__(self):
-        return f"{self.get_full_name()} ({self.get_tipo_usuario_display()})"
-
 
 
 class Cliente(models.Model):
     ID_cliente = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
 
-
 class Administrador(models.Model):
     ID_admin = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
-
 
 class Camion(models.Model):
     ID_camion = models.BigAutoField(primary_key=True)
@@ -84,68 +78,28 @@ class Paquete(models.Model):
     Estado = models.CharField(max_length=1, choices=Estados_paquetes, default='B')
 
     def save(self, *args, **kwargs):
-        if self.Remitente and not self.Destino:
-            self.Destino = self.Remitente.ID_cliente.direccion
-        
-        # Notificación de cambio de estado
+        if self.Remitente and not self.Direccion:
+            self.Direccion = self.Remitente.ID_cliente.Direccion
+        #sistema observer, que al momento de cambiar el estado 
+        # de un paquete, se le avisa al cliente 
         if self.pk:
             old = Paquete.objects.get(pk=self.pk)
             if old.Estado != self.Estado:
-                self.notificar_cambio_estado()
-        
+                Correo = self.Remitente.ID_cliente.Correo
+                if self.Estado == "E":
+                    mensaje_correo = "Su paquete ha sido entregado"
+                elif self.Estado == "R":
+                    mensaje_correo = "Su paquete está siendo repartido"
+                else:
+                    mensaje_correo = "Su paquete está en bodega y pronto será repartido"
+                
+                enviar_correo(correo_destinatario=Correo, 
+                              asunto="Se actualizo el estado de su paquete",
+                              mensaje=mensaje_correo)
+                
         super().save(*args, **kwargs)
-    
-    def notificar_cambio_estado(self):
-        estados_mensajes = {
-            'B': "su paquete está en bodega",
-            'R': "su paquete está en reparto",
-            'E': "su paquete ha sido entregado"
-        }
-        mensaje = f"Actualización: {estados_mensajes.get(self.Estado, '')}"
-        enviar_correo(
-            self.Remitente.ID_cliente.email,
-            "Estado de su paquete",
-            mensaje
-        )
 
 
 class Entrega(models.Model):
-    ID_entrega = models.BigAutoField(primary_key=True)
-    Conductor = models.ForeignKey(Conductor, on_delete=models.SET_NULL, null=True, blank=True)
-    Fecha_creacion = models.DateTimeField(default=timezone.now)
-    Fecha_entrega = models.DateTimeField(null=True, blank=True)
-    Estado = models.CharField(max_length=20, choices=[
-            ('P', 'Pendiente'),
-        ('E', 'En camino'),
-        ('C', 'Completada'),
-    ], default='P')
-
-    # Relación muchos a muchos con Paquete usando un modelo intermedio
-    paquetes = models.ManyToManyField(Paquete, through='Lista_Paquetes')
-
-    def asignar_paquetes(self, paquetes_ids):
-        """Asigna múltiples paquetes a esta entrega y actualiza su estado"""
-        for paquete_id in paquetes_ids:
-            paquete = Paquete.objects.get(pk=paquete_id)
-            Lista_Paquetes.objects.create(entrega=self, paquete=paquete)
-            paquete.Estado = 'R'  # Cambia estado a "Repartiendo"
-            paquete.save()
-
-    
-    def completar_entrega(self):
-        """Marca la entrega como completada y actualiza estados de paquetes"""
-        self.Estado = 'C'
-        self.Fecha_entrega = now()
-        self.save()
-        
-        for paquete in self.paquetes.all():
-            paquete.Estado = 'E'  # Cambia estado a "Entregado"
-            paquete.save()
-
-class Lista_Paquetes(models.Model):
-    entrega = models.ForeignKey(Entrega, on_delete=models.CASCADE)
-    paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
-    fecha_asignacion = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        unique_together = ('entrega', 'paquete')  # Evita duplicados
+    Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
+            

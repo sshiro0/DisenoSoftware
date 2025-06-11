@@ -14,3 +14,10 @@ class LoginForm(AuthenticationForm):
             'placeholder': 'Contraseña'
         })
     )
+
+    def confirm_login_allowed(self, user):
+        if user.estado == 'B':
+            raise forms.ValidationError(
+                "Esta cuenta está bloqueada.",
+                code='blocked',
+            )
