@@ -3,7 +3,10 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .models import *
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from .decorators import admin_required, conductor_required, cliente_required
 from django.core.cache import cache
 from django.contrib import messages
 from .forms import LoginForm
@@ -43,40 +46,27 @@ def login_view(request):
     attempts = cache.get(cache_key, 0)
     
     if attempts >= 5:
-        messages.error(request, "Demasiados intentos fallidos. Intente más tarde")
-        return render(request, 'manejo_paquetes/auth/lockout.html')
+        return render(request, 'auth/lockout.html')
     
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-
-            if user is not None:
-
-                if user.estado == 'B':
-                    messages.error(request, "Su cuenta está bloqueada.")
-                    return redirect('login')
-                
-                cache.delete(cache_key)
-                login(request, user)
-                return redirect('dashboard')
+            user = form.get_user()
+            if user.estado == 'B':
+                messages.error(request, "Cuenta bloqueada")
+                return redirect('login')
             
-            else:
-                attempts += 1
-                cache.set(cache_key, attempts, timeout=30)  
-                remaining = 5 - attempts
-                messages.error(request, f"Credenciales incorrectas. Intentos restantes: {remaining}")
+            cache.delete(cache_key)
+            login(request, user)
+            return redirect('dashboard')
         else:
             attempts += 1
-            cache.set(cache_key, attempts, timeout=30)
-            remaining = 5 - attempts
-            messages.error(request, f"Formulario inválido. Intentos restantes: {remaining}")
+            cache.set(cache_key, attempts, timeout=300)
+            messages.error(request, f"Credenciales inválidas. Intentos restantes: {5 - attempts}")
     else:
         form = LoginForm()
     
-    return render(request, 'auth/login.html', {'form': form, 'attempts_remaining': 5 - attempts})
+    return render(request, 'auth/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
@@ -84,11 +74,36 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    user = request.user
-    if user.tipo_usuario == 'Ad':
-        return render(request, 'dashboard/admin.html')
-    elif user.tipo_usuario == 'Co':
-        return render(request, 'dashboard/conductor.html')
-    else:
-        return render(request, 'dashboard/cliente.html')
-    
+    if request.user.tipo_usuario == 'Ad':
+        return redirect('admin-dashboard')
+    elif request.user.tipo_usuario == 'Co':
+        return redirect('conductor-dashboard')
+    return redirect('cliente-dashboard')
+
+# Vistas para Admin
+@method_decorator(admin_required, name='dispatch')
+class AdminDashboardView(View):
+    def get(self, request):
+        return render(request, 'admin/dashboard.html')
+
+# Vistas para Conductor
+@method_decorator(conductor_required, name='dispatch')
+class ConductorDashboardView(View):
+    def get(self, request):
+        return render(request, 'conductor/dashboard.html')
+
+@method_decorator(conductor_required, name='dispatch')
+class RutaOptimaView(View):
+    def get(self, request):
+        return render(request, 'conductor/ruta.html')
+
+# Vistas para Cliente
+@method_decorator(cliente_required, name='dispatch')
+class ClienteDashboardView(View):
+    def get(self, request):
+        return render(request, 'cliente/dashboard.html')
+
+@method_decorator(cliente_required, name='dispatch')
+class PaquetesClienteView(View):
+    def get(self, request):
+        return render(request, 'cliente/paquetes.html')

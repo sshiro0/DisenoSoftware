@@ -5,14 +5,13 @@ class RoleAccessMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
+        return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        if hasattr(view_func, 'admin_required') and not request.user.tipo_usuario == 'Ad':
-            return HttpResponseForbidden()
-        if hasattr(view_func, 'conductor_required') and not request.user.tipo_usuario == 'Co':
-            return HttpResponseForbidden()
-        if hasattr(view_func, 'cliente_required') and not request.user.tipo_usuario == 'Cl':
-            return HttpResponseForbidden()
-        return None
+        if hasattr(view_func, 'view_class'):  # Para vistas basadas en clase
+            view_class = view_func.view_class
+            if hasattr(view_class, 'decorators'):
+                for decorator in view_class.decorators:
+                    if decorator.__name__ == 'admin_required' and request.user.tipo_usuario != 'Ad':
+                        return HttpResponseForbidden()
+                    # Añadir checks similares para otros roles

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'manejo_paquetes.middleware.RoleAccessMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -55,10 +56,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Sistema_de_envios.urls'
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
-
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
 SESSION_COOKIE_SECURE = False  # Cambiar a True en producción
@@ -66,13 +63,12 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
-LOGIN_ATTEMPTS_LIMIT = 5
-LOGIN_COOLOFF_TIME = 30
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'manejo_paquetes/templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,6 +80,13 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGIN_URL = 'login'  # Nombre de la URL (no la ruta)
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
+LOGIN_ATTEMPTS_LIMIT = 5  # 5 intentos
+LOGIN_COOLOFF_TIME = 300  # 5 minutos (300 segundos)
 
 WSGI_APPLICATION = 'Sistema_de_envios.wsgi.application'
 
@@ -124,23 +127,29 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_COOKIE_AGE = 1209600  # 2 semanas en segundos
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'es-cl'
+TIME_ZONE = 'America/Santiago'
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Si tienes archivos estáticos globales
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -155,3 +164,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'trabajoudec1@gmail.com'
 EMAIL_HOST_PASSWORD = 'TrabajoUdeC123'
+DEFAULT_FROM_EMAIL = 'trabajoudec1@gmail.com' 
