@@ -30,6 +30,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+AUTH_USER_MODEL = 'manejo_paquetes.Usuario'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,8 +54,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'Sistema_de_envios.urls'
-
-AUTH_USER_MODEL = 'manejo_paquetes.Usuario'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'

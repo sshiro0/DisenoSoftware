@@ -56,11 +56,11 @@ class Usuario(AbstractUser):
 
 
 class Cliente(models.Model):
-    ID_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+    ID_cliente = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
 class Administrador(models.Model):
-    ID_admin = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+    ID_admin = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
 class Camion(models.Model):
@@ -68,7 +68,7 @@ class Camion(models.Model):
     Patente = models.CharField(max_length=6, null=True, default=None, blank=True)
 
 class Conductor(models.Model):
-    ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+    ID_conductor = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
     Camion = models.ForeignKey(Camion, null=True, on_delete=models.SET_NULL)
 
 
