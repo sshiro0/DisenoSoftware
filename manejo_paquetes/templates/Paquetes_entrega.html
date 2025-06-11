@@ -1,19 +1,21 @@
-<h1>Paquetes a cargo de repatir por {{Entrega.Conductor.ID_conductor.Nombre}}</h1>
+<h1>Entregas por realizar : </h1>
 
-<h2>Paquetes de la entrega</h2>
-
-{% for paquete in paquetes %}
+{% for entrega in entregas %}
 <div>
-    <h2>ID: {{paquete.ID_paquete}} </h2>
-    <p>Cliente: {{paquete.Remitente.ID_cliente.Nombre}} </p>
-    <p>Cliente ID : {{paquete.Remitente.ID_cliente.ID_usuario}}</p>
-    <p>Direccion Bodega: {{paquete.Origen}}</p>
-    <p>Destino: {{paquete.Destino}}</p>
-    <p>Estado: {{paquete.get_Estado_display}}</p>
-    <button>Cancelar Paquete</button>   
-
+    <h2>Entrega ID: {{entrega.id}}</h2>
+    <h3>Paquetes de la entrega:</h3>
+    {%for paquete in paquetes %}
+        {% if paquete.Direccion == entrega.Destino %}
+            <div>
+                <h2>ID: {{paquete.ID_paquete}} </h2>
+                <p>Cliente: {{paquete.Remitente.ID_cliente.Nombre}} </p>
+                <p>Cliente ID : {{paquete.Remitente.ID_cliente.ID_usuario}}</p>
+                <p>Direccion Bodega: {{paquete.get_Origen_display}}</p>
+                <p>Destino: {{paquete.Direccion}}</p>
+                <p>Cords: {{paquete.Destino}}</p>
+                <p>Estado: {{paquete.get_Estado_display}}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
 </div>
 {% endfor %}
-
-
-

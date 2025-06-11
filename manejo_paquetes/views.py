@@ -14,14 +14,10 @@ def Ver_Paquetes_Cliente(request, id):
         'ID' : id
     })
 
-def Ver_Paquetes_Entrega(request, id):
-    entrega = Entrega.objects.get(id=id)
-    if entrega.exists():
-        paquetes = entrega.Lista_Paquetes.all()
-    else:
-        entrega = None
-        paquetes = None
+def Ver_Paquetes_Entrega(request):
+    entregas = Entrega.objects.all()
+    paquetes = Paquete.objects.all()
     return render(request, 'Paquetes_entrega.html', {
-        'Entrega' : entrega,
-        'Paquetes' : paquetes
+        'entregas' : entregas,
+        'paquetes' : paquetes,
     })
