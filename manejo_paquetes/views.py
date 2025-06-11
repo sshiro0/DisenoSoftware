@@ -1,41 +1,158 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseForbidden
+from django.contrib import messages
 from .models import *
-
-from django.contrib.auth import authenticate, login, logout
-from django.views import View
-from django.utils.decorators import method_decorator
+from .utility.correos import enviar_correo
+from .utility.direcciones import *
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required, conductor_required, cliente_required
-from django.core.cache import cache
-from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django.views import View
+
+
 from .forms import LoginForm
 
+# Vista Dashboard Admin
+@admin_required
+def admin_dashboard(request):
+    # Todos los paquetes con filtros
+    estado = request.GET.get('estado', '')
+    bodega = request.GET.get('bodega', '')
+    
+    paquetes = Paquete.objects.all()
+    
+    if estado:
+        paquetes = paquetes.filter(Estado=estado)
+    if bodega:
+        paquetes = paquetes.filter(Origen=bodega)
+    
+    context = {
+        'paquetes': paquetes,
+        'estados': dict(Paquete.Estados_paquetes),
+        'bodegas': dict(Paquete.Bodegas_Paquetes),
+        'filtro_estado': estado,
+        'filtro_bodega': bodega
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+# Vista Dashboard Cliente
+@cliente_required
+def cliente_dashboard(request):
+    # Solo paquetes del cliente logueado
+    paquetes = Paquete.objects.filter(Remitente__ID_cliente=request.user)
+    
+    context = {
+        'paquetes': paquetes,
+        'estados': dict(Paquete.Estados_paquetes)
+    }
+    return render(request, 'cliente/dashboard.html', context)
+
+# Vista Dashboard Conductor
+@conductor_required
+def conductor_dashboard(request):
+    # Envios asignados al conductor
+    conductor = request.user.conductor
+    entregas = Entrega.objects.filter(
+        Q(paquetes__Estado='R') & 
+        Q(paquetes__Conductor_asignado=conductor)
+    )
+    context = {
+        'entregas': entregas.distinct()
+    }
+    return render(request, 'conductor/dashboard.html', context)
+
+    # Vista Ruta Óptima
+@conductor_required
+def ruta_optima(request, entrega_id):
+    entrega = Entrega.objects.get(pk=entrega_id)
+    paquetes = entrega.paquetes.all()
+    
+    # Convertir direcciones a coordenadas (necesitarás implementar esto)
+    dest_coords = [obtener_coordenadas(p.Destino) for p in paquetes]
+    sede_coords = [obtener_coordenadas_bodega(paquetes[0].Origen)] if paquetes else []
+    
+    # Generar mapa de ruta
+    map_route(dest_coords, sede_coords)
+    
+    # En producción, deberías guardar el mapa con un nombre único y servir el archivo
+    with open('map.html', 'r') as f:
+        mapa_html = f.read()
+    
+    context = {
+        'entrega': entrega,
+        'paquetes': paquetes,
+        'mapa_html': mapa_html
+    }
+    return render(request, 'conductor/ruta.html', context)
+
+# Función auxiliar para notificar cambios de estado
+def notificar_cambio_estado(paquete, nuevo_estado):
+    if paquete.Estado != nuevo_estado:
+        mensajes = {
+            'B': "su paquete está en bodega",
+            'R': "su paquete está en reparto",
+            'E': "su paquete ha sido entregado"
+        }
+        mensaje = f"Actualización: {mensajes[nuevo_estado]}"
+        enviar_correo(
+            paquete.Remitente.ID_cliente.email,
+            "Estado de su paquete",
+            mensaje
+        )
 
 
-# Create your views here.
-
-def hello(request):
-    return HttpResponse("<h1>Hello World</h1>") 
-
-def Ver_Paquetes_Cliente(request, id):
-    Paquetes = Paquete.objects.all()
-    return render(request, 'Paquetes_Cliente.html',{
-        'paquetes' : Paquetes,
-        'ID' : id
+@admin_required
+def crear_entrega(request):
+    if request.method == 'POST':
+        conductor_id = request.POST.get('conductor')
+        paquetes_ids = request.POST.getlist('paquetes')
+        
+        conductor = Conductor.objects.get(pk=conductor_id)
+        entrega = Entrega.objects.create(Conductor=conductor)
+        entrega.asignar_paquetes(paquetes_ids)
+        
+        messages.success(request, "Entrega creada y paquetes asignados")
+        return redirect('admin-dashboard')
+    
+    # GET request
+    conductores = Conductor.objects.all()
+    paquetes = Paquete.objects.filter(Estado='B')  # Solo paquetes en bodega
+    return render(request, 'admin/crear_entrega.html', {
+        'conductores': conductores,
+        'paquetes': paquetes
     })
 
-def Ver_Paquetes_Entrega(request, id):
-    entrega = Entrega.objects.get(id=id)
-    if entrega.exists():
-        paquetes = entrega.Lista_Paquetes.all()
-    else:
-        entrega = None
-        paquetes = None
-    return render(request, 'Paquetes_entrega.html', {
-        'Entrega' : entrega,
-        'Paquetes' : paquetes
+@conductor_required
+def completar_entrega(request, entrega_id):
+    entrega = Entrega.objects.get(pk=entrega_id)
+    
+    if request.method == 'POST' and entrega.Conductor.ID_conductor == request.user:
+        entrega.completar_entrega()
+        messages.success(request, "Entrega marcada como completada")
+        return redirect('conductor-dashboard')
+    
+    return render(request, 'conductor/confirmar_entrega.html', {
+        'entrega': entrega
     })
+
+#def Ver_Paquetes_Cliente(request, id):
+#    Paquetes = Paquete.objects.all()
+#    return render(request, 'Paquetes_Cliente.html',{
+#        'paquetes' : Paquetes,
+#        'ID' : id
+#    })
+
+# def Ver_Paquetes_Entrega(request, id):
+ #   entrega = Entrega.objects.get(id=id)
+ #   if entrega.exists():
+ #       paquetes = entrega.Lista_Paquetes.all()
+ #   else:
+ #       entrega = None
+ #       paquetes = None
+ #   return render(request, 'Paquetes_entrega.html', {
+ #       'Entrega' : entrega,
+ #       'Paquetes' : paquetes
+ #   })
 
 def login_view(request):
     if request.user.is_authenticated:

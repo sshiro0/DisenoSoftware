@@ -11,7 +11,7 @@ urlpatterns = [
     
     # Conductor
     path('conductor/', views.ConductorDashboardView.as_view(), name='conductor-dashboard'),
-    path('conductor/ruta/', views.RutaOptimaView.as_view(), name='ruta-optima'),
+    path('conductor/ruta/<int:entrega_id>/', views.RutaOptimaView.as_view(), name='ruta-optima'),
     
     # Cliente
     path('cliente/', views.ClienteDashboardView.as_view(), name='cliente-dashboard'),

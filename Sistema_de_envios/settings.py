@@ -145,7 +145,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Si tienes archivos estáticos globales
+    # BASE_DIR / 'static',  # Si tienes archivos estáticos globales
 ]
 
 MEDIA_URL = '/media/'
