@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from manejo_paquetes.utility.Correos import enviar_correo
 from django.utils.timezone import now
 from location_field.models.plain import PlainLocationField
@@ -31,20 +32,27 @@ Bodegas_Paquetes = [
     ("B4", "Arturo Prat 900 Concepcion"),
 ]
 
-class Usuario(models.Model):
-    ID_usuario = models.BigAutoField(primary_key=True)
-    Nombre = models.CharField(max_length=50)
-    Correo = models.EmailField()
-    Contrasena = models.CharField(max_length=20)
-    Direccion = models.CharField(max_length=150)
-    Tipo_Usuario = models.CharField(max_length=2 , choices=Tipos_de_usuarios)
-    Fecha_Registro = models.DateField(default=None, blank=True, null=True)
-    Estado = models.CharField()
+class Usuario(AbstractUser):
+    TIPOS_USUARIO = [
+        ("Ad", "Administrador"),
+        ("Co", "Conductor"),
+        ("Cl", "Cliente"),
+    ]
+    
+    ESTADOS = [
+        ('A', 'Activo'),
+        ('I', 'Inactivo'),
+        ('B', 'Bloqueado'),
+    ]
 
-    def save(self, *args, **kwargs):
-        if self.Fecha_Registro is None:
-            self.Fecha_Registro = now().date()
-        super().save(*args, **kwargs)
+    direccion = models.CharField(max_length=150)
+    tipo_usuario = models.CharField(max_length=2, choices=TIPOS_USUARIO)
+    fecha_registro = models.DateField(default=now)
+    estado = models.CharField(max_length=20, default='A')
+    
+    def __str__(self):
+        return f"{self.get_full_name()} ({self.get_tipo_usuario_display()})"
+
 
 
 class Cliente(models.Model):

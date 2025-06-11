@@ -53,13 +53,30 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Sistema_de_envios.urls'
 
+AUTH_USER_MODEL = 'manejo_paquetes.Usuario'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
+SESSION_COOKIE_SECURE = False  # Cambiar a True en producción
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+LOGIN_ATTEMPTS_LIMIT = 5
+LOGIN_COOLOFF_TIME = 30
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'manejo_paquetes/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
