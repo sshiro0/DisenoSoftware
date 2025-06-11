@@ -71,6 +71,7 @@ class Envio(models.Model):
 class Paquete(models.Model):
     ID_paquete = models.BigAutoField(primary_key=True)
     Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    Direccion = models.CharField(max_length=150, default=None, null=True, blank=True)
     Destino = PlainLocationField(blank=True, null=True)
     Origen = models.CharField(max_length=150, choices= Bodegas_Paquetes, default=None)
     Peso = models.PositiveIntegerField()
@@ -80,9 +81,8 @@ class Paquete(models.Model):
     Estado = models.CharField(max_length=1, choices=Estados_paquetes, default=None)
 
     def save(self, *args, **kwargs):
-        if self.Remitente and not self.Destino:
-            self.Destino = self.Remitente.ID_cliente.Direccion
-
+        if self.Remitente and not self.Direccion:
+            self.Direccion = self.Remitente.ID_cliente.Direccion
         #sistema observer, que al momento de cambiar el estado 
         # de un paquete, se le avisa al cliente 
         if self.pk:
@@ -110,27 +110,13 @@ class Ruta(models.Model):
 
 
 class Entrega(models.Model):
-    ID_entrega = models.BigAutoField(primary_key=True)
     Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
-    #Destino es la direccion en palabras, que debemos pasar a cords
-
-    # Relación muchos a muchos con Paquete usando un modelo intermedio
-    paquetes = models.ManyToManyField(Paquete, through='Lista_Paquetes')
+    Lista_Paquetes = models.ManyToManyField(Paquete, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.destino and self.pk is None:
-            # Solo si aún no tiene destino definido
-            primer_paquete = self.paquetes.first()
-            if primer_paquete:
-                self.destino = primer_paquete.destino
         super().save(*args, **kwargs)
-
-class Lista_Paquetes(models.Model):
-    entrega = models.ForeignKey(Entrega, on_delete=models.CASCADE)
-    paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
-
-
-
-
-
+        if self.Destino:
+            paquetes = Paquete.objects.filter(Direccion=self.Destino)
+            self.Lista_Paquetes.set(paquetes)
+            
 

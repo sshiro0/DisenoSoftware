@@ -85,7 +85,7 @@ DATABASES = {
 LOCATION_FIELD = {
     'map.provider': 'openstreetmap',
     'map.zoom': 13,
-    'map.center': [-36.8270, -73.0503],
+    'map.center': [-36.8201, -73.0444],
 }
 
 
