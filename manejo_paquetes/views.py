@@ -38,6 +38,7 @@ def admin_dashboard(request):
 # Vista Dashboard Cliente
 @cliente_required
 def cliente_dashboard(request):
+    
     # Solo paquetes del cliente logueado
     paquetes = Paquete.objects.filter(Remitente__ID_cliente=request.user)
     

@@ -8,6 +8,7 @@ admin.site.register(Cliente)
 admin.site.register(Conductor)
 admin.site.register(Administrador)
 admin.site.register(Camion)
+admin.site.register(Ruta)
 admin.site.register(Entrega)
 
 @admin.register(Paquete)

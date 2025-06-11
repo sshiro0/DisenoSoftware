@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Mis Paquetes</h2>
+
+<div class="status-cards">
+    <div class="card">
+        <h3>En Bodega</h3>
+        <p>{{ paquetes.filter(Estado='B').count }}</p>
+    </div>
+    <div class="card">
+        <h3>En Reparto</h3>
+        <p>{{ paquetes.filter(Estado='R').count }}</p>
+    </div>
+    <div class="card">
+        <h3>Entregados</h3>
+        <p>{{ paquetes.filter(Estado='E').count }}</p>
+    </div>
+</div>
+
+<table class="table">
+    <!-- Tabla de paquetes similar a la del conductor -->
+</table>
+{% endblock %}
