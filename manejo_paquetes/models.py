@@ -25,17 +25,11 @@ Estados_paquetes = [
 ]
 
 Bodegas_Paquetes = [
-    ("B1", "Edmundo Larenas 160 Concepcion"),
-    ("B2", "Maipú 2120 Concepcion"),
-    ("B3", "Camilo Henríquez 2345 Concepcion"),
-    ("B4", "Arturo Prat 900 Concepcion"),
+    ("B1", "Edmundo Larenas 160 Concepcion")
 ]
 
 Bodegas_cords = [
-    (-73.038343, -36.82970312988858),
-    (-73.03169734825777, -36.81604496647257),
-    (-73.03608766175144, -36.81099039611668),
-    (-73.06113404825716, -36.82581091203825),
+    (-73.038343, -36.82970312988858)
 ]
 
 class Usuario(models.Model):
