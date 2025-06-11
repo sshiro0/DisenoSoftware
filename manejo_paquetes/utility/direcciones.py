@@ -1,7 +1,7 @@
 import openrouteservice as ors
 import folium
 
-def map_route(dest_coords:list, sede_coords:list):
+def map_route(dest_coords:list, sede_coords:list, nombre_mapa:str):
 
     #Inicializacion del cliente de ORS
     client = ors.Client(key='5b3ce3597851110001cf6248782465e9b6b14ca9a036b6e4d110a193')
@@ -77,4 +77,23 @@ def map_route(dest_coords:list, sede_coords:list):
 
 
     #Guardado del mapa en un archivo HTML
-    map.save('map.html')
+    map.save(f"{nombre_mapa}.html")
+
+sede_coords = [[-73.03852531674826,-36.82668501352285],
+               [-73.01696915350173,-36.81958580497319]]
+
+#El formato para ors es [Longitud, Latitud], lo opuesto a la mayoria de los sistemas de coordenadas, motivo por el cual se invierten
+
+#Definimos el grupo de coordenadas de destino
+dest_coords = [[-73.04391854071059, -36.818045789079320],
+               [-73.06106239057411, -36.821266818502340],
+               [-73.05582684156164, -36.817989805917960],
+               [-73.05884027705054, -36.829970488752280],
+               [-73.05007995584482, -36.833498355954610],
+               [-73.045402982504, -36.82445072087983000],
+               [-73.03849837824572, -36.824133177028166],
+               [-73.0416923969898, -36.8128609590356100]
+]
+
+#Ejecucion de la funcion
+map_route(dest_coords, sede_coords, 'mapa_locoooo')

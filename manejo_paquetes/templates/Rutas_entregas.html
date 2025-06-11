@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapas de Entregas</title>
+</head>
+<body>
+    <h1>Mapas Generados</h1>
+    <ul>
+        {% for mapa in mapas %}
+            <li><a href="{{ mapa }}" target="_blank">{{ mapa }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

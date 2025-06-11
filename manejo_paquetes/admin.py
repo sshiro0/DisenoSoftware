@@ -12,8 +12,6 @@ admin.site.register(Cliente)
 admin.site.register(Conductor)
 admin.site.register(Administrador)
 admin.site.register(Camion)
-admin.site.register(Envio)
-admin.site.register(Ruta)
 
 @admin.register(Paquete)
 class PaqueteAdmin(admin.ModelAdmin):

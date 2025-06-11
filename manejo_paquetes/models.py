@@ -31,6 +31,13 @@ Bodegas_Paquetes = [
     ("B4", "Arturo Prat 900 Concepcion"),
 ]
 
+Bodegas_cords = [
+    (-73.038343, -36.82970312988858),
+    (-73.03169734825777, -36.81604496647257),
+    (-73.03608766175144, -36.81099039611668),
+    (-73.06113404825716, -36.82581091203825),
+]
+
 class Usuario(models.Model):
     ID_usuario = models.BigAutoField(primary_key=True)
     Nombre = models.CharField(max_length=50)
@@ -64,10 +71,6 @@ class Conductor(models.Model):
     Camion = models.ForeignKey(Camion, null=True, on_delete=models.SET_NULL)
 
 
-class Envio(models.Model):
-    ID_envio = models.BigAutoField(primary_key=True)
-
-
 class Paquete(models.Model):
     ID_paquete = models.BigAutoField(primary_key=True)
     Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
@@ -90,7 +93,7 @@ class Paquete(models.Model):
             if old.Estado != self.Estado:
                 Correo = self.Remitente.ID_cliente.Correo
                 if self.Estado == "E":
-                    mensaje_correo = "Su paquete a sido entregado"
+                    mensaje_correo = "Su paquete ha sido entregado"
                 elif self.Estado == "R":
                     mensaje_correo = "Su paquete está siendo repartido"
                 else:
@@ -102,21 +105,8 @@ class Paquete(models.Model):
                 
         super().save(*args, **kwargs)
 
-    
-
-
-class Ruta(models.Model):
-    ID_ruta = models.BigAutoField(primary_key=True)
-
 
 class Entrega(models.Model):
     Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
-    Lista_Paquetes = models.ManyToManyField(Paquete, blank=True)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.Destino:
-            paquetes = Paquete.objects.filter(Direccion=self.Destino)
-            self.Lista_Paquetes.set(paquetes)
             
 
