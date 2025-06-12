@@ -24,4 +24,4 @@ pip install openrouteservice
 https://drive.google.com/drive/folders/1DAwGLI0p6MuW4FIhr0_P0HD7mPu7OT_i?usp=drive_link
 
 El video con la demostración del funcionamiento de nuestro trabajo fue subido a este drive,
-ya que el archivo es muy pesado para subirlo a github como tal, y es mas simple de giardar así.
+ya que el archivo es muy pesado para subirlo a github como tal, y es mas simple de guardar así.
