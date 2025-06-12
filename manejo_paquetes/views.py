@@ -61,7 +61,7 @@ def Ver_ruta(request):
         nombremapa = f"mapa_entrega_{entrega.id}" 
         nombres_mapas.append(f"{nombremapa}.html")
         map_route(dest_coords=coordenadas, sede_coords=Bodegas_cords, nombre_mapa=nombremapa)
-        print(nombres_mapas)
+        coordenadas.clear()
     return render(request, 'Rutas_entregas.html',{
         'mapas' : nombres_mapas,
     })
