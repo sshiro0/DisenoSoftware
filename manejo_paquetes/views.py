@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.core.cache import cache
 
-from .forms import LoginForm
+from .forms import LoginForm, RegistroForm
 
 
 def Ver_Paquetes_Cliente(request, id):
@@ -91,3 +91,17 @@ def dashboard_cliente(request):
 @login_required
 def dashboard_conductor(request):
     return render(request, 'dashboard_conductor.html')
+
+def registro(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard_redirect') 
+
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login') 
+    else:
+        form = RegistroForm()
+
+    return render(request, 'registro.html', {'form': form})
