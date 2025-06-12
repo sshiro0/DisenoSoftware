@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+
+from Sistema_de_envios.settings import LOGOUT_REDIRECT_URL
 from .models import *
 from .utility.Correos import enviar_correo
 from .utility.direcciones import *
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from .decorators import admin_required, conductor_required, cliente_required
+# from .decorators import admin_required, conductor_required, cliente_required
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.core.cache import cache
@@ -56,17 +59,15 @@ def login_view(request):
         return redirect('dashboard_redirect')
     
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
             return redirect('dashboard_redirect')
-        else:
-            messages.error(request, 'Usuario o contraseña incorrectos')
+    else:
+        form = LoginForm()
     
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
@@ -74,11 +75,13 @@ def logout_view(request):
 
 @login_required
 def dashboard_redirect(request):
-    if request.user.tipo_usuario == 'Cl':
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    elif getattr(request.user, 'tipo_usuario', None) == 'Cl':
         return redirect('dashboard_cliente')
-    elif request.user.tipo_usuario == 'Co':
+    elif getattr(request.user, 'tipo_usuario', None) == 'Co':
         return redirect('dashboard_conductor')
-    elif request.user.tipo_usuario == 'Ad':
+    elif getattr(request.user, 'tipo_usuario', None) == 'Ad':
         return redirect('/admin/')
 
 @login_required
