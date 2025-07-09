@@ -22,7 +22,7 @@ def login_user(request):
                 return redirect('ver_entregas')
 
             if Administrador.objects.filter(ID_admin__ID_usuario=usuario.ID_usuario).exists():
-                return redirect('/admin/')  # o tu vista personalizada: redirect('panel_admin')
+                return redirect('admin_login')  # o tu vista personalizada: redirect('panel_admin')
 
             else:
                 messages.error(request, 'Tu cuenta no está asignada como cliente, conductor ni administrador.')
