@@ -19,7 +19,7 @@ def login_user(request):
                     password=request.POST['password'],
                     first_name=request.POST['first_name'],
                     last_name=request.POST['last_name'],
-                    tipo_usuario='CL',
+                    tipo_usuario='Cl',
                     direccion=request.POST.get('direccion', '')
                 )
                 messages.success(request, 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.')
