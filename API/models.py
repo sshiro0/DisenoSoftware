@@ -92,5 +92,6 @@ class Paquete(models.Model):
 
 class Entrega(models.Model):
     Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
-            
+    Conductor = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
+    Camion = models.ForeignKey(Camion, blank=True, null=True, on_delete=models.CASCADE)
 

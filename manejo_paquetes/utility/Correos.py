@@ -6,5 +6,5 @@ def enviar_correo(correo_destinatario, asunto, mensaje):
         mensaje,
         'trabajoudec1@gmail.com', # De quién
         [correo_destinatario], # A quién
-        fail_silently=False,
+        fail_silently=True,
     )
