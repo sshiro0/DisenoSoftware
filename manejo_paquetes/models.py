@@ -1,106 +1,107 @@
-from django.db import models
-from manejo_paquetes.utility.Correos import enviar_correo
-from django.utils.timezone import now
-from location_field.models.plain import PlainLocationField
-# Create your models here.
+
+# from django.db import models
+# from manejo_paquetes.utility.Correos import enviar_correo
+# from django.utils.timezone import now
+# from location_field.models.plain import PlainLocationField
+# # Create your models here.
 
 
-Dimensiones_Paquetes = [
-    ("S", "Pequeño"),
-    ("M", "Mediano"),
-    ("L", "Largo"),
-    ("XL", "Muy Largo"),
-]
+# Dimensiones_Paquetes = [
+#     ("S", "Pequeño"),
+#     ("M", "Mediano"),
+#     ("L", "Largo"),
+#     ("XL", "Muy Largo"),
+# ]
 
-Tipos_de_usuarios = [
-    ("Ad", "Administrador"),
-    ("Co", "Conductor"),
-    ("Cl", "Cliente"),
-]
+# Tipos_de_usuarios = [
+#     ("Ad", "Administrador"),
+#     ("Co", "Conductor"),
+#     ("Cl", "Cliente"),
+# ]
 
-Estados_paquetes = [
-    ("B", "En bodega"),
-    ("R", "Repartiendo"),
-    ("E", "Entregado"),
-]
+# Estados_paquetes = [
+#     ("B", "En bodega"),
+#     ("R", "Repartiendo"),
+#     ("E", "Entregado"),
+# ]
 
-Bodegas_Paquetes = [
-    ("B1", "Edmundo Larenas 160 Concepcion")
-]
+# Bodegas_Paquetes = [
+#     ("B1", "Edmundo Larenas 160 Concepcion")
+# ]
 
-Bodegas_cords = [
-    (-73.038343, -36.82970312988858)
-]
+# Bodegas_cords = [
+#     (-73.038343, -36.82970312988858)
+# ]
 
-class Usuario(models.Model):
-    ID_usuario = models.BigAutoField(primary_key=True)
-    Nombre = models.CharField(max_length=50)
-    Correo = models.EmailField()
-    Contrasena = models.CharField(max_length=20)
-    Direccion = models.CharField(max_length=150)
-    Tipo_Usuario = models.CharField(max_length=2 , choices=Tipos_de_usuarios)
-    Fecha_Registro = models.DateField(default=None, blank=True, null=True)
-    Estado = models.CharField()
+# class Usuario(models.Model):
+#     ID_usuario = models.BigAutoField(primary_key=True)
+#     Nombre = models.CharField(max_length=50)
+#     Correo = models.EmailField()
+#     Contrasena = models.CharField(max_length=20)
+#     Direccion = models.CharField(max_length=150)
+#     Tipo_Usuario = models.CharField(max_length=2 , choices=Tipos_de_usuarios)
+#     Fecha_Registro = models.DateField(default=None, blank=True, null=True)
+#     Estado = models.CharField()
 
-    def save(self, *args, **kwargs):
-        if self.Fecha_Registro is None:
-            self.Fecha_Registro = now().date()
-        super().save(*args, **kwargs)
-
-
-class Cliente(models.Model):
-    ID_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+#     def save(self, *args, **kwargs):
+#         if self.Fecha_Registro is None:
+#             self.Fecha_Registro = now().date()
+#         super().save(*args, **kwargs)
 
 
-class Administrador(models.Model):
-    ID_admin = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+# class Cliente(models.Model):
+#     ID_cliente = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
-class Camion(models.Model):
-    ID_camion = models.BigAutoField(primary_key=True)
-    Patente = models.CharField(max_length=6, null=True, default=None, blank=True)
-
-class Conductor(models.Model):
-    ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
-    Camion = models.ForeignKey(Camion, null=True, on_delete=models.SET_NULL)
+# class Administrador(models.Model):
+#     ID_admin = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
 
 
-class Paquete(models.Model):
-    ID_paquete = models.BigAutoField(primary_key=True)
-    Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    Direccion = models.CharField(max_length=150, default=None, null=True, blank=True)
-    Destino = PlainLocationField(blank=True, null=True)
-    Origen = models.CharField(max_length=150, choices= Bodegas_Paquetes, default=None)
-    Peso = models.PositiveIntegerField()
-    Dimensiones = models.CharField(max_length=2, choices=Dimensiones_Paquetes, default=None)
-    Instrucciones_Entrega = models.CharField(max_length=200, default="")
-    Contenido = models.CharField(max_length=80, default="")
-    Estado = models.CharField(max_length=1, choices=Estados_paquetes, default=None)
+# class Camion(models.Model):
+#     ID_camion = models.BigAutoField(primary_key=True)
+#     Patente = models.CharField(max_length=6, null=True, default=None, blank=True)
 
-    def save(self, *args, **kwargs):
-        if self.Remitente and not self.Direccion:
-            self.Direccion = self.Remitente.ID_cliente.Direccion
-        #sistema observer, que al momento de cambiar el estado 
-        # de un paquete, se le avisa al cliente 
-        if self.pk:
-            old = Paquete.objects.get(pk=self.pk)
-            if old.Estado != self.Estado:
-                Correo = self.Remitente.ID_cliente.Correo
-                if self.Estado == "E":
-                    mensaje_correo = "Su paquete ha sido entregado"
-                elif self.Estado == "R":
-                    mensaje_correo = "Su paquete está siendo repartido"
-                else:
-                    mensaje_correo = "Su paquete está en bodega y pronto será repartido"
+# class Conductor(models.Model):
+#     ID_conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, primary_key=True)
+#     Camion = models.ForeignKey(Camion, null=True, on_delete=models.SET_NULL)
+
+
+# class Paquete(models.Model):
+#     ID_paquete = models.BigAutoField(primary_key=True)
+#     Remitente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+#     Direccion = models.CharField(max_length=150, default=None, null=True, blank=True)
+#     Destino = PlainLocationField(blank=True, null=True)
+#     Origen = models.CharField(max_length=150, choices= Bodegas_Paquetes, default=None)
+#     Peso = models.PositiveIntegerField()
+#     Dimensiones = models.CharField(max_length=2, choices=Dimensiones_Paquetes, default=None)
+#     Instrucciones_Entrega = models.CharField(max_length=200, default="")
+#     Contenido = models.CharField(max_length=80, default="")
+#     Estado = models.CharField(max_length=1, choices=Estados_paquetes, default=None)
+
+#     def save(self, *args, **kwargs):
+#         if self.Remitente and not self.Direccion:
+#             self.Direccion = self.Remitente.ID_cliente.Direccion
+#         #sistema observer, que al momento de cambiar el estado 
+#         # de un paquete, se le avisa al cliente 
+#         if self.pk:
+#             old = Paquete.objects.get(pk=self.pk)
+#             if old.Estado != self.Estado:
+#                 Correo = self.Remitente.ID_cliente.Correo
+#                 if self.Estado == "E":
+#                     mensaje_correo = "Su paquete ha sido entregado"
+#                 elif self.Estado == "R":
+#                     mensaje_correo = "Su paquete está siendo repartido"
+#                 else:
+#                     mensaje_correo = "Su paquete está en bodega y pronto será repartido"
                 
-                enviar_correo(correo_destinatario=Correo, 
-                              asunto="Se actualizo el estado de su paquete",
-                              mensaje=mensaje_correo)
+#                 enviar_correo(correo_destinatario=Correo, 
+#                               asunto="Se actualizo el estado de su paquete",
+#                               mensaje=mensaje_correo)
                 
-        super().save(*args, **kwargs)
+#         super().save(*args, **kwargs)
 
 
-class Entrega(models.Model):
-    Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
+# class Entrega(models.Model):
+#     Destino = models.CharField(max_length=150, default=None, blank=True, null=True)
             
 

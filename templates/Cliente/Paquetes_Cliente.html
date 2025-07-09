@@ -1,0 +1,18 @@
+<h1>Paquetes en bodega de {{ID.Nombre}}</h1>
+
+{% for paquete in paquetes%}
+
+    {% if paquete.Remitente.id == ID %}
+    <div>
+        <h2>ID: {{ paquete.ID_paquete }} </h2>
+        <p>Cliente: {{ request.user.username }} </p>
+        <p>Cliente ID: {{ paquete.Remitente.id }}</p>
+        <p>Direccion Bodega: {{ paquete.get_Origen_display }}</p>
+        <p>Destino: {{ paquete.Destino }}</p>
+        <p>Estado: {{ paquete.get_Estado_display }}</p>
+        <button>Cancelar Paquete</button>
+    </div>
+    {% endif %}
+
+
+{% endfor %}
