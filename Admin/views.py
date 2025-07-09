@@ -8,20 +8,20 @@ def create_paquete(request):
 
     if request.method == 'POST':
         try:
-            remitente_id = int(request.POST['remitente'])
-            remitente = CustomUser.objects.get(id=remitente_id)
-            print(remitente)
 
-            paquete = Paquete.objects.create(
-                Remitente=remitente,
-                Direccion=request.POST['direccion'],
-                Origen=request.POST['origen'],
-                Peso=request.POST['peso'],
-                Dimensiones=request.POST['dimensiones'],
-                Instrucciones_Entrega=request.POST.get('instrucciones', ''),
-                Contenido=request.POST.get('contenido', ''),
-                Estado=request.POST['estado'],
-            )
+            data = {
+                'remitente': int(request.POST['remitente']),
+                'direccion': request.POST['direccion'],
+                'origen': request.POST['origen'],
+                'peso': request.POST['peso'],
+                'dimensiones': request.POST['dimensiones'],
+                'instrucciones': request.POST.get('instrucciones', ''),
+                'contenido': request.POST.get('contenido', ''),
+                'estado': request.POST['estado'],
+                'destino': request.POST.get('destino', '')  # opcional
+            }
+
+            crear_paquete_bd(data)
 
 
         except (KeyError, ValueError, CustomUser.DoesNotExist) as e:

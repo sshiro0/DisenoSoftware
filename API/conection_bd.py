@@ -12,24 +12,22 @@ def obtener_cliente():
 def obtener_entregas():
     entregas = Entrega.objects.all()
     return entregas
-def crear_paquete_BD(data):
-        paquete = Paquete(
-            Remitente=data['remitente'],
-            Direccion=data['direccion'],
-            Origen=data['origen'],
-            Peso=data['peso'],
-            Dimensiones=data['dimensiones'],
-            Instrucciones=data['instrucciones'],
-            Contenido=data['contenido'],
-            Estado=data['estado']
-        )
-        Paquete.objects.create(
-            Remitente=Cliente.objects.get(ID_cliente=data['remitente']),
-            Direccion=paquete.Direccion,
-            Origen=paquete.Origen,
-            Peso=paquete.Peso,
-            Dimensiones=paquete.Dimensiones,
-            Instrucciones=paquete.Instrucciones,
-            Contenido=paquete.Contenido,
-            Estado=paquete.Estado
-        )    
+def crear_paquete_bd(data):
+    remitente = CustomUser.objects.get(id=data['remitente'])
+
+    if remitente.tipo_usuario != 'Cl':
+        raise ValueError("Solo se pueden asignar paquetes a usuarios tipo cliente")
+
+    Paquete.objects.create(
+        Remitente=remitente,
+        Direccion=data['direccion'],
+        Origen=data['origen'],
+        Peso=data['peso'],
+        Dimensiones=data['dimensiones'],
+        Instrucciones_Entrega=data.get('instrucciones', ''),
+        Contenido=data.get('contenido', ''),
+        Estado=data['estado'],
+        Destino=data.get('destino', '')  # si estás usando ese campo
+    )
+
+           
