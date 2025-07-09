@@ -22,4 +22,5 @@ urlpatterns = [
     path('',include('API.urls')),
     path('Cliente/', include('Cliente.urls')),
     path('Conductor/', include('Conductor.urls')),
+    path('admi/', include('Admin.urls')),
 ]

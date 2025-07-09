@@ -17,7 +17,6 @@ def login_user(request):
             usuario = User.objects.get(email=correo)
         except User.DoesNotExist:
             messages.error(request, 'Correo o contraseña incorrectos.')
-            print("holas")
             return render(request, 'login.html')
             
 
@@ -34,7 +33,7 @@ def login_user(request):
                 return redirect('ver_entregas')
 
             elif tipo == 'AD':
-                return redirect('/admin/')  # o tu vista: redirect('panel_admin')
+                return redirect('admin_login')  # o tu vista: redirect('panel_admin')
 
             else:
                 messages.error(request, 'Tu cuenta no tiene un tipo de usuario válido.')
