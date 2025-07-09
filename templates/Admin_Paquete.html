@@ -16,11 +16,12 @@
                 <label for="remitente" class="form-label">Remitente</label>
                 <select class="form-select" id="remitente" name="remitente" required>
                     <option selected disabled>Seleccione un remitente</option>
-                    <option value="cliente1">Cliente 1</option>
-                    <option value="cliente2">Cliente 2</option>
-                    <!-- Puedes llenar esto dinámicamente desde la base de datos -->
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.ID_cliente }}">{{ cliente.ID_cliente.Nombre }}</option>
+                    {% endfor %}
                 </select>
             </div>
+
 
             <!-- Dirección -->
             <div class="mb-3">
@@ -32,9 +33,9 @@
             <div class="mb-3">
                 <label for="origen" class="form-label">Origen</label>
                 <select class="form-select" id="origen" name="origen" required>
-                    <option selected disabled>Seleccione una ciudad</option>
-                    <option value="santiago">Santiago</option>
-                    <option value="valparaiso">Valparaíso</option>
+                    {% for bodega in bodegas %}
+                        <option value="{{ bodega.0}}">{{ bodega.1 }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
@@ -50,10 +51,10 @@
                 <label for="dimensiones" class="form-label">Dimensiones</label>
                 <select class="form-select" id="dimensiones" name="dimensiones" required>
                     <option selected disabled>Seleccione un tamaño</option>
-                    <option value="pequeno">Pequeño</option>
-                    <option value="mediano">Mediano</option>
-                    <option value="largo">Largo</option>
-                    <option value="muy_largo">Muy largo</option>
+                    <option value="S">Pequeño</option>
+                    <option value="M">Mediano</option>
+                    <option value="L">Largo</option>
+                    <option value="XL">Muy largo</option>
                 </select>
             </div>
 
@@ -74,9 +75,9 @@
                 <label for="estado" class="form-label">Estado del paquete</label>
                 <select class="form-select" id="estado" name="estado" required>
                     <option selected disabled>Seleccione estado</option>
-                    <option value="bodega">En bodega</option>
-                    <option value="repartiendo">Repartiendo</option>
-                    <option value="entregado">Entregado</option>
+                    <option value="B">En bodega</option>
+                    <option value="R">Repartiendo</option>
+                    <option value="E">Entregado</option>
                 </select>
             </div>
 
