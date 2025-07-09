@@ -9,18 +9,19 @@ def crear_usuario_general(request):
             usuario = CustomUser.objects.create_user(
                 username=request.POST['username'],
                 password=request.POST['password'],
+                email=request.POST['email'],
                 first_name=request.POST['first_name'],
                 last_name=request.POST['last_name'],
                 direccion=request.POST.get('direccion', ''),
                 tipo_usuario=tipo
             )
-            return render(request, 'Admin/Admin_CrearUsuario.html', {'exito': True})
+            return render(request, 'Admin/Admin_CrearConductor.html', {'exito': True})
         except Exception as e:
-            return render(request, 'Admin/Admin_CrearUsuario.html', {
+            return render(request, 'Admin/Admin_CrearConductor.html', {
                 'error': 'Error al crear usuario: ' + str(e)
             })
 
-    return render(request, 'Admin/Admin_CrearUsuario.html')
+    return render(request, 'Admin/Admin_CrearConductor.html')
 
 
 

@@ -9,35 +9,48 @@ User = get_user_model()
 
 def login_user(request):
     if request.method == 'POST':
-        correo = request.POST['correo']
-        contrasena = request.POST['contrasena']
+        form_type = request.POST.get('form_type', 'Login')
 
-        # Autenticación usando email como identificador
-        try:
-            usuario = User.objects.get(email=correo)
-        except User.DoesNotExist:
-            messages.error(request, 'Correo o contraseña incorrectos.')
-            return render(request, 'login.html')
-            
+        if form_type == 'Register':
+            try:
+                CustomUser.objects.create_user(
+                    username=request.POST['username'],
+                    email=request.POST['email'],
+                    password=request.POST['password'],
+                    first_name=request.POST['first_name'],
+                    last_name=request.POST['last_name'],
+                    tipo_usuario='CL',
+                    direccion=request.POST.get('direccion', '')
+                )
+                messages.success(request, 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.')
+            except Exception as e:
+                messages.error(request, f'Error al registrar: {str(e)}')
 
-        user = authenticate(request, username=usuario.username, password=contrasena)
+        else:  # form_type == 'Login'
+            correo = request.POST['correo']
+            contrasena = request.POST['contrasena']
 
-        if user is not None:
-            login(request, user)
-            tipo = user.tipo_usuario.strip().upper()
+            try:
+                usuario = CustomUser.objects.get(email=correo)
+            except CustomUser.DoesNotExist:
+                messages.error(request, 'Correo o contraseña incorrectos.')
+                return render(request, 'login.html')
 
-            if tipo == 'CL':
-                return redirect('ver_paquetes_cliente', id=user.id)
+            user = authenticate(request, username=usuario.username, password=contrasena)
 
-            elif tipo == 'CO':
-                return redirect('ver_entregas')
+            if user is not None:
+                login(request, user)
+                tipo = user.tipo_usuario.strip().upper()
 
-            elif tipo == 'AD':
-                return redirect('admin_login')  # o tu vista: redirect('panel_admin')
-
+                if tipo == 'CL':
+                    return redirect('ver_paquetes_cliente', id=user.id)
+                elif tipo == 'CO':
+                    return redirect('ver_entregas')
+                elif tipo == 'AD':
+                    return redirect('admin_login')
+                else:
+                    messages.error(request, 'Tu cuenta no tiene un tipo de usuario válido.')
             else:
-                messages.error(request, 'Tu cuenta no tiene un tipo de usuario válido.')
-        else:
-            messages.error(request, 'Correo o contraseña incorrectos.')
+                messages.error(request, 'Correo o contraseña incorrectos.')
 
     return render(request, 'login.html')

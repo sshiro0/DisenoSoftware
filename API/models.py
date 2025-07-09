@@ -37,6 +37,7 @@ Bodegas_cords = [
 
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True)
     tipo_usuario = models.CharField(max_length=2, choices=Tipos_de_usuarios) 
     direccion = models.CharField(max_length=150, blank=True, null=True)#opcional
     fecha_registro = models.DateField(auto_now_add=True)
