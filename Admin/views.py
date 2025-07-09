@@ -15,7 +15,7 @@ def crear_usuario_general(request):
                 direccion=request.POST.get('direccion', ''),
                 tipo_usuario=tipo
             )
-            return render(request, 'Admin/Admin_CrearConductor.html', {'exito': True})
+            return render(request, 'Admin/Admin.html', {'exito': True})
         except Exception as e:
             return render(request, 'Admin/Admin_CrearConductor.html', {
                 'error': 'Error al crear usuario: ' + str(e)
