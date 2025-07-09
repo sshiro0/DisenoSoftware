@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from API.conection_bd import *
 # Create your views here.
 
@@ -18,10 +18,11 @@ def create_paquete(request):
                 'instrucciones': request.POST.get('instrucciones', ''),
                 'contenido': request.POST.get('contenido', ''),
                 'estado': request.POST['estado'],
-                'destino': request.POST.get('destino', '')  # opcional
+                'destino': request.POST.get('destino', '')
             }
 
             crear_paquete_bd(data)
+            return redirect('admin_login')
 
 
         except (KeyError, ValueError, CustomUser.DoesNotExist) as e:

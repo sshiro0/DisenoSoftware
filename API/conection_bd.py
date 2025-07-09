@@ -24,10 +24,10 @@ def crear_paquete_bd(data):
         Origen=data['origen'],
         Peso=data['peso'],
         Dimensiones=data['dimensiones'],
-        Instrucciones_Entrega=data.get('instrucciones', ''),
-        Contenido=data.get('contenido', ''),
+        Instrucciones_Entrega=data['instrucciones'],
+        Contenido=data['contenido'],
         Estado=data['estado'],
-        Destino=data.get('destino', '')  # si estás usando ese campo
+        Destino=data.get('destino', '') # si estás usando ese campo
     )
 
            

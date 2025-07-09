@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
 from .models import *
 from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 
 User = get_user_model()
 
 
 def login_user(request):
+    if request.user.is_authenticated:
+        logout(request)
+        return redirect('login')
+
     if request.method == 'POST':
         correo = request.POST['correo']
         contrasena = request.POST['contrasena']
