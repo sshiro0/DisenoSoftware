@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 60px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container">
+    <div class="form-container">
+        <h3 class="text-center mb-4">Registrar Usuario</h3>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Tipo de usuario -->
+            <div class="mb-3">
+                <label for="tipo_usuario" class="form-label">Tipo de Usuario</label>
+                <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
+                    <option selected disabled>Seleccione tipo</option>
+                    <option value="Co">Conductor</option>
+                    <option value="Ad">Administrador</option>
+                </select>
+            </div>
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <!-- Nombre -->
+            <div class="mb-3">
+                <label for="first_name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+            </div>
+
+            <!-- Apellido -->
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <!-- Dirección -->
+            <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion">
+            </div>
+
+            <!-- Botón -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success">Registrar Usuario</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

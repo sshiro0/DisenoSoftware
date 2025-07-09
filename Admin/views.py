@@ -2,6 +2,28 @@ from django.shortcuts import render
 from API.conection_bd import *
 # Create your views here.
 
+def crear_usuario_general(request):
+    if request.method == 'POST':
+        try:
+            tipo = request.POST['tipo_usuario']
+            usuario = CustomUser.objects.create_user(
+                username=request.POST['username'],
+                password=request.POST['password'],
+                first_name=request.POST['first_name'],
+                last_name=request.POST['last_name'],
+                direccion=request.POST.get('direccion', ''),
+                tipo_usuario=tipo
+            )
+            return render(request, 'Admin/Admin_CrearUsuario.html', {'exito': True})
+        except Exception as e:
+            return render(request, 'Admin/Admin_CrearUsuario.html', {
+                'error': 'Error al crear usuario: ' + str(e)
+            })
+
+    return render(request, 'Admin/Admin_CrearUsuario.html')
+
+
+
 def create_paquete(request):
     clientes = obtener_cliente()
     bodegas = obtener_bodegas()
